@@ -1,0 +1,21 @@
+def rmtree(sftp, remotepath, level=0):
+    for f in sftp.listdir_attr(remotepath):
+        rpath = posixpath.join(remotepath, f.filename)
+        if stat.S_ISDIR(f.st_mode):
+            rmtree(sftp, rpath, level=(level + 1))
+        else:
+            rpath = posixpath.join(remotepath, f.filename)
+            print('removing %s%s' % ('    ' * level, rpath))
+            sftp.remove(rpath)
+    print('removing %s%s' % ('    ' * level, remotepath))
+    sftp.rmdir(remotepath)
+
+ssh = paramiko.SSHClient()
+ssh.load_host_keys(os.path.expanduser(os.path.join("~", ".ssh", "known_hosts")))
+ssh.connect(server, username=username, pkey=mykey)
+sftp = ssh.open_sftp()
+rmtree(sftp, remoteArtifactPath)
+
+# Close to end
+stfp.close()
+ssh.close()
